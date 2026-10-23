@@ -1,0 +1,235 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Inventory Management System</title>
+
+    <!-- SEO & Favicon -->
+    <meta name="description" content="Inventory & Transactions Management System">
+    <link rel="icon" type="image/png" href="~/assets/images/favicon.ico">
+
+    <!-- Spark Admin Stylesheets -->
+    <link rel="stylesheet" href="~/assets/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/libs/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/assets/libs/apexcharts/apexcharts.css">
+    <link rel="stylesheet" href="~/assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="~/assets/css/main.css">
+
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    <!-- START: Sidebar Component -->
+    <div class="sidebar-wrapper" id="sidebar">
+        <!-- Brand Logo / Identity -->
+        <a asp-controller="Home" asp-action="Index" class="sidebar-brand">
+            <i class="bi bi-box-seam-fill text-primary"></i>
+            <span>Inventory System</span>
+        </a>
+
+        <!-- Navigation Menu -->
+        <div class="flex-grow-1 overflow-y-auto">
+            <!-- Group: Main Menu -->
+            <div class="sidebar-menu-section">
+                <div class="sidebar-menu-title">Main</div>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item">
+                        <a asp-controller="Home" asp-action="Index" class="sidebar-menu-link" id="menu-overview" title="Dashboard">
+                            <i class="bi bi-grid-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: Inventory Management -->
+            <div class="sidebar-menu-section">
+                <div class="sidebar-menu-title">Inventory</div>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item">
+                        <a asp-controller="Product" asp-action="Index" class="sidebar-menu-link" id="menu-products">
+                            <i class="bi bi-box-seam"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a asp-controller="Category" asp-action="Index" class="sidebar-menu-link" id="menu-categories">
+                            <i class="bi bi-tags-fill"></i>
+                            <span>Categories</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a asp-controller="Supplier" asp-action="Index" class="sidebar-menu-link" id="menu-suppliers">
+                            <i class="bi bi-truck"></i>
+                            <span>Suppliers</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: Transactions & Operations -->
+            <div class="sidebar-menu-section">
+                <div class="sidebar-menu-title">Operations</div>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item">
+                        <a asp-controller="Transaction" asp-action="Index" class="sidebar-menu-link" id="menu-transactions">
+                            <i class="bi bi-receipt"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sidebar Profile Card -->
+        <div class="sidebar-profile">
+            <img src="~/assets/images/avatar.png" alt="Administrator" class="sidebar-profile-img"
+                 onerror="this.src='https://ui-avatars.com/api/?name=Admin+User&background=0d6efd&color=fff'">
+            <div class="sidebar-profile-info">
+                <div class="sidebar-profile-name">System Admin</div>
+                <div class="sidebar-profile-email">admin@inventory.com</div>
+            </div>
+        </div>
+    </div>
+    <!-- END: Sidebar Component -->
+
+    <!-- START: Main Content Area -->
+    <div class="main-wrapper">
+        <!-- START: Top Navbar Component -->
+        <header class="navbar-custom">
+            <div class="navbar-left">
+                <button class="btn-desktop-toggle d-none d-xl-flex align-items-center justify-content-center me-3"
+                        id="desktop-sidebar-toggle" aria-label="Minimize Sidebar">
+                    <i class="bi bi-chevron-bar-left"></i>
+                </button>
+                <button class="sidebar-toggle-btn me-2" id="sidebar-toggle" aria-label="Toggle Navigation">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <!-- Quick Action Dropdown -->
+                <div class="dropdown ms-2">
+                    <button class="btn-quick-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                            id="quick-actions-dropdown">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Create</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-quick-action" aria-labelledby="quick-actions-dropdown">
+                        <li class="dropdown-header">Quick Actions</li>
+                        <li><a class="dropdown-item" asp-controller="Product" asp-action="Create"><i class="bi bi-box-seam me-2"></i> New Product</a></li>
+                        <li><a class="dropdown-item" asp-controller="Category" asp-action="Create"><i class="bi bi-tag me-2"></i> New Category</a></li>
+                        <li><a class="dropdown-item" asp-controller="Supplier" asp-action="Create"><i class="bi bi-truck me-2"></i> New Supplier</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Search Pill -->
+            <div class="navbar-search-wrapper">
+                <input type="text" class="navbar-search-input" placeholder="Search Inventory..." id="main-search">
+                <button class="navbar-search-btn" aria-label="Search">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="navbar-actions">
+                <button class="navbar-action-btn me-1" aria-label="Toggle Fullscreen" id="btn-fullscreen">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
+
+                <!-- Profile Info -->
+                <div class="d-flex align-items-center ms-2">
+                    <img src="~/assets/images/avatar.png" alt="Profile Image" class="navbar-profile-img"
+                         onerror="this.src='https://ui-avatars.com/api/?name=Admin+User&background=0d6efd&color=fff'">
+                    <span class="navbar-profile-name d-none d-md-inline ms-2 fw-semibold">Admin</span>
+                </div>
+            </div>
+        </header>
+        <!-- END: Top Navbar Component -->
+
+        <!-- Dynamic Body Content -->
+        <main role="main" class="p-4 flex-grow-1">
+            @RenderBody()
+        </main>
+
+        <!-- START: Footer Component -->
+        <footer class="footer-custom">
+            <div class="footer-left">
+                <span class="footer-logo">
+                    <i class="bi bi-box-seam-fill"></i> Inventory Management System
+                </span>
+                <span class="footer-separator">|</span>
+                <span class="footer-copy">&copy; @DateTime.Now.Year - Built with ASP.NET Core MVC</span>
+            </div>
+        </footer>
+        <!-- END: Footer Component -->
+        
+    </div>
+    <!-- END: Main Content Area -->
+
+    <!-- Spark Admin & Core Scripts -->
+    <script src="~/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/libs/apexcharts/apexcharts.min.js"></script>
+    <script src="~/assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="~/assets/js/dashboard.js"></script>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Automatic Active Navigation Class -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname.toLowerCase();
+            const navLinks = document.querySelectorAll('.sidebar-menu-link');
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href')?.toLowerCase();
+                if (href) {
+                    if (currentPath === href || (currentPath === '/' && href.includes('/home'))) {
+                        link.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Toast Notifications for TempData Messages -->
+    @if (TempData["Success"] is string successMessage)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(successMessage))
+                });
+            });
+        </script>
+    }
+
+    @if (TempData["Error"] is string errorMessage)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({ icon: "error", title: "Unable to complete the action", text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(errorMessage)) });
+            });
+        </script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

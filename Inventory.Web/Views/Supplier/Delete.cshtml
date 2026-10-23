@@ -1,0 +1,69 @@
+@model Inventory.Web.Models.Supplier
+
+@{
+    ViewData["Title"] = "Delete Supplier";
+}
+
+<!-- Page Header -->
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title text-danger">Delete Supplier</h1>
+        <p class="page-subtitle text-muted">Confirm this destructive action.</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn-custom btn-custom-light">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Main Form Container -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <!-- TempData Error Message -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Danger Alert Box -->
+        <div class="alert alert-danger border-0 bg-danger-subtle text-danger d-flex align-items-start gap-3 p-3 rounded-3 mb-4">
+            <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
+            <div>
+                <h5 class="alert-heading fw-bold mb-1">Are you sure you want to delete @Model.Name?</h5>
+                <p class="mb-0 small">This operation will permanently remove the supplier and all associated records. This action cannot be undone.</p>
+            </div>
+        </div>
+
+        <!-- Summary Details -->
+        <dl class="row mb-4 gy-2">
+            <dt class="col-sm-3 text-muted">Company Name</dt>
+            <dd class="col-sm-9 fw-semibold">@Model.Name</dd>
+
+            <dt class="col-sm-3 text-muted">Contact Person</dt>
+            <dd class="col-sm-9 fw-semibold">@Model.ContactPerson</dd>
+
+            <dt class="col-sm-3 text-muted">Phone Number</dt>
+            <dd class="col-sm-9 fw-semibold">@Model.Phone</dd>
+
+            <dt class="col-sm-3 text-muted">Email Address</dt>
+            <dd class="col-sm-9 fw-semibold text-break">@Model.Email</dd>
+        </dl>
+
+        <!-- Form Action -->
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
+                <a asp-action="Index" class="btn-custom btn-custom-light">Cancel</a>
+                <button type="submit" class="btn btn-danger px-4 py-2 rounded-2 fw-semibold">
+                    <i class="bi bi-trash me-1"></i>Confirm Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,111 @@
+@model IEnumerable<Inventory.Web.Models.Supplier>
+
+@{
+    ViewData["Title"] = "Suppliers";
+}
+
+<!-- Page Header -->
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <h1 class="page-title">Suppliers</h1>
+        <p class="page-subtitle">Manage your supplier contacts and details.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn-custom btn-custom-primary">
+            <i class="bi bi-plus-lg"></i>Add New Supplier
+        </a>
+    </div>
+</div>
+
+<!-- Main Card Container -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <!-- Suppliers Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Company / Supplier Name</th>
+                        <th>Contact Person</th>
+                        <th>Phone Number</th>
+                        <th>Email Address</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <i class="bi bi-truck fs-3 d-block mb-2"></i>No suppliers available.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="rounded bg-light text-secondary d-inline-flex align-items-center justify-content-center" 
+                                              style="width:36px;height:36px">
+                                            <i class="bi bi-building"></i>
+                                        </span>
+                                        <span class="fw-semibold">@item.Name</span>
+                                    </div>
+                                </td>
+                                <td>@item.ContactPerson</td>
+                                <td>
+                                    <i class="bi bi-telephone text-muted me-1"></i>@item.Phone
+                                </td>
+                                <td>
+                                    <i class="bi bi-envelope text-muted me-1"></i>@item.Email
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="table-btn-action" title="View @item.Name">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="table-btn-action" title="Edit @item.Name">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="table-btn-action delete" title="Delete @item.Name">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (ViewData["PageIndex"] != null && ViewData["TotalPages"] != null)
+        {
+            var pageIndex = (int)ViewData["PageIndex"]!;
+            var totalPages = (int)ViewData["TotalPages"]!;
+            var prevDisabled = pageIndex <= 1 ? "disabled" : "";
+            var nextDisabled = pageIndex >= totalPages ? "disabled" : "";
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a asp-action="Index" 
+                   asp-route-pageNumber="@(pageIndex - 1)" 
+                   class="btn btn-outline-secondary @prevDisabled">
+                    Previous
+                </a>
+                
+                <span class="text-muted small">
+                    Page @pageIndex of @totalPages
+                </span>
+                
+                <a asp-action="Index" 
+                   asp-route-pageNumber="@(pageIndex + 1)" 
+                   class="btn btn-outline-secondary @nextDisabled">
+                    Next
+                </a>
+            </div>
+        }
+    </div>
+</div>

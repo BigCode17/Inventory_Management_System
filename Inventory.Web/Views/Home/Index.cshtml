@@ -1,0 +1,116 @@
+﻿@model Inventory.Web.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid p-0 inventory-dashboard">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="dashboard-eyebrow">INVENTORY OVERVIEW</div>
+            <h2 class="dashboard-title mb-1">Dashboard</h2>
+            <p class="dashboard-subtitle mb-0">A real-time snapshot of your stock and inventory activity.</p>
+        </div>
+        <a asp-controller="Product" asp-action="Create" class="btn btn-primary dashboard-primary-btn">
+            <i class="bi bi-plus-lg me-2"></i>Add Product
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="dashboard-stat-card">
+                <div class="stat-topline"><span>Total Products</span><span class="stat-icon icon-blue"><i class="bi bi-box-seam"></i></span></div>
+                <div class="stat-value">@Model.TotalProducts.ToString("N0")</div>
+                <a asp-controller="Product" asp-action="Index" class="stat-link">Browse products <i class="bi bi-arrow-up-right ms-1"></i></a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="dashboard-stat-card">
+                <div class="stat-topline"><span>Inventory Value</span><span class="stat-icon icon-green"><i class="bi bi-currency-dollar"></i></span></div>
+                <div class="stat-value stat-value-money">@Model.TotalInventoryValue.ToString("N2")</div>
+                <div class="stat-caption">Current quantity × unit price</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="dashboard-stat-card">
+                <div class="stat-topline"><span>Units In Stock</span><span class="stat-icon icon-purple"><i class="bi bi-layers"></i></span></div>
+                <div class="stat-value">@Model.TotalStockUnits.ToString("N0")</div>
+                <div class="stat-caption">Total units across all products</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="dashboard-stat-card">
+                <div class="stat-topline"><span>Needs Attention</span><span class="stat-icon icon-red"><i class="bi bi-exclamation-triangle"></i></span></div>
+                <div class="stat-value">@((Model.LowStockProducts + Model.OutOfStockProducts).ToString("N0"))</div>
+                <div class="stat-caption"><span class="text-warning">@Model.LowStockProducts low stock</span><span class="mx-1">·</span><span class="text-danger">@Model.OutOfStockProducts out</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-xl-8">
+            <section class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div><h5>Stock Movement</h5><p>Quantity changes recorded this month</p></div>
+                    <span class="panel-period"><i class="bi bi-calendar3 me-2"></i>@DateTime.Now.ToString("MMMM yyyy")</span>
+                </div>
+                <div class="movement-grid">
+                    <div class="movement-item movement-in"><div class="movement-icon"><i class="bi bi-box-arrow-in-down"></i></div><div><span>Units Added</span><strong>@Model.StockInThisMonth.ToString("N0")</strong><small>This month</small></div></div>
+                    <div class="movement-item movement-out"><div class="movement-icon"><i class="bi bi-box-arrow-up"></i></div><div><span>Units Removed</span><strong>@Model.StockOutThisMonth.ToString("N0")</strong><small>This month</small></div></div>
+                    <div class="movement-item movement-net"><div class="movement-icon"><i class="bi bi-arrow-left-right"></i></div><div><span>Net Movement</span><strong>@((Model.StockInThisMonth - Model.StockOutThisMonth).ToString("+#,##0;-#,##0;0"))</strong><small>Added minus removed</small></div></div>
+                </div>
+                <div class="movement-note"><i class="bi bi-info-circle me-2"></i>Movement is calculated from transaction records that contain both old and new quantities.</div>
+            </section>
+        </div>
+        <div class="col-12 col-xl-4">
+            <section class="dashboard-panel h-100">
+                <div class="panel-heading"><div><h5>Inventory Snapshot</h5><p>Key resources at a glance</p></div><i class="bi bi-pie-chart panel-heading-icon"></i></div>
+                <div class="snapshot-list">
+                    <div class="snapshot-row"><span class="snapshot-symbol symbol-blue"><i class="bi bi-tags"></i></span><span class="snapshot-label">Categories</span><strong>@Model.TotalCategories</strong></div>
+                    <div class="snapshot-row"><span class="snapshot-symbol symbol-purple"><i class="bi bi-truck"></i></span><span class="snapshot-label">Suppliers</span><strong>@Model.TotalSuppliers</strong></div>
+                    <div class="snapshot-row"><span class="snapshot-symbol symbol-orange"><i class="bi bi-exclamation-circle"></i></span><span class="snapshot-label">Low stock (1–5 units)</span><strong class="text-warning">@Model.LowStockProducts</strong></div>
+                    <div class="snapshot-row"><span class="snapshot-symbol symbol-red"><i class="bi bi-x-circle"></i></span><span class="snapshot-label">Out of stock</span><strong class="text-danger">@Model.OutOfStockProducts</strong></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="dashboard-panel recent-transactions-panel">
+        <div class="panel-heading">
+            <div><h5>Recent Transactions</h5><p>Latest recorded inventory changes</p></div>
+            <a asp-controller="Transaction" asp-action="Index" class="panel-link">View all <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div class="table-responsive">
+            <table class="table dashboard-table align-middle mb-0">
+                <thead><tr><th>Product</th><th>Action</th><th>Date &amp; Time</th><th>Previous Qty</th><th>Current Qty</th><th>Details</th></tr></thead>
+                <tbody>
+                @if (Model.RecentTransactions.Any())
+                {
+                    @foreach (var item in Model.RecentTransactions)
+                    {
+                        var badgeClass = item.ActionType == Inventory.Web.Models.ActionType.Created ? "transaction-created" : item.ActionType == Inventory.Web.Models.ActionType.QuantityChanged ? "transaction-changed" : "transaction-deleted";
+                        <tr>
+                            <td><div class="transaction-product"><span class="product-mini-icon"><i class="bi bi-box"></i></span><span>@(item.Product?.Name ?? item.ProductName ?? "Unknown product")</span></div></td>
+                            <td><span class="transaction-badge @badgeClass">@item.ActionType</span></td>
+                            <td class="transaction-date">@item.TransactionDate.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>@(item.OldQuantity?.ToString("N0") ?? "—")</td>
+                            <td class="fw-semibold">@(item.NewQuantity?.ToString("N0") ?? "—")</td>
+                            <td class="transaction-details">@(string.IsNullOrWhiteSpace(item.Details) ? "—" : item.Details)</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" class="empty-transactions"><i class="bi bi-inbox d-block mb-2"></i>No transactions yet. Product changes will appear here.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<style>
+.inventory-dashboard{color:#e6edf7}.dashboard-eyebrow{font-size:.7rem;letter-spacing:.16em;font-weight:800;color:#7c9cc7;margin-bottom:.45rem}.dashboard-title{font-size:1.8rem;font-weight:750;color:#f5f8ff;letter-spacing:-.035em}.dashboard-subtitle{color:#8e9db3;font-size:.91rem}.dashboard-primary-btn{border:0;border-radius:10px;padding:.75rem 1.1rem;font-weight:650;box-shadow:0 7px 20px rgba(37,99,235,.2)}
+.dashboard-stat-card,.dashboard-panel{height:100%;background:linear-gradient(145deg,#151f31,#111a29);border:1px solid #253248;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.12)}.dashboard-stat-card{padding:1.25rem 1.35rem;transition:transform .2s ease,border-color .2s ease}.dashboard-stat-card:hover{transform:translateY(-3px);border-color:#3b5274}.stat-topline{display:flex;justify-content:space-between;align-items:center;gap:1rem;color:#a9b7cb;font-size:.82rem;font-weight:650}.stat-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.2rem}.icon-blue{background:rgba(59,130,246,.15);color:#69a7ff}.icon-green{background:rgba(16,185,129,.15);color:#4adeaa}.icon-purple{background:rgba(167,139,250,.15);color:#b9a1ff}.icon-red{background:rgba(248,113,113,.14);color:#ff8989}.stat-value{font-size:2rem;font-weight:760;letter-spacing:-.04em;color:#f4f7fc;margin:.75rem 0 .25rem;line-height:1.2}.stat-value-money{font-size:clamp(1.45rem,2vw,1.9rem);overflow-wrap:anywhere}.stat-link{font-size:.78rem;color:#78aaff;text-decoration:none}.stat-link:hover{color:#a8c9ff}.stat-caption{font-size:.76rem;color:#8392a8;margin-top:.45rem}.dashboard-panel{padding:1.35rem}.panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}.panel-heading h5{color:#f0f4fb;font-size:1rem;font-weight:720;margin:0 0 .35rem}.panel-heading p{color:#8796ab;font-size:.79rem;margin:0}.panel-period{white-space:nowrap;color:#a6b4c8;background:#1b293d;border:1px solid #2a3a52;border-radius:8px;padding:.45rem .65rem;font-size:.72rem}.panel-heading-icon{font-size:1.35rem;color:#7b9bc7}.movement-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}.movement-item{display:flex;gap:.8rem;align-items:center;min-width:0;padding:1rem;background:#182438;border:1px solid #293a52;border-radius:12px}.movement-icon{width:38px;height:38px;flex:0 0 38px;border-radius:10px;display:grid;place-items:center;font-size:1.05rem}.movement-in .movement-icon{background:rgba(52,211,153,.13);color:#4adeaa}.movement-out .movement-icon{background:rgba(251,113,133,.13);color:#fb8194}.movement-net .movement-icon{background:rgba(96,165,250,.13);color:#7db5ff}.movement-item span,.movement-item small{display:block;color:#91a0b5;font-size:.72rem}.movement-item strong{display:block;color:#f2f6fc;font-size:1.35rem;line-height:1.5}.movement-item small{font-size:.67rem}.movement-note{margin-top:1rem;padding-top:.85rem;border-top:1px solid #263449;color:#7f91a9;font-size:.72rem}.snapshot-list{display:flex;flex-direction:column;gap:.2rem}.snapshot-row{display:flex;align-items:center;gap:.75rem;padding:.7rem .15rem;border-bottom:1px solid #243147}.snapshot-row:last-child{border-bottom:0}.snapshot-symbol{width:34px;height:34px;display:grid;place-items:center;border-radius:10px}.symbol-blue{background:rgba(96,165,250,.13);color:#7db5ff}.symbol-purple{background:rgba(167,139,250,.13);color:#b9a1ff}.symbol-orange{background:rgba(251,191,36,.13);color:#fbbf24}.symbol-red{background:rgba(248,113,113,.13);color:#fb8181}.snapshot-label{flex:1;color:#aab7c9;font-size:.82rem}.snapshot-row strong{color:#f3f6fc;font-size:.9rem}.panel-link{color:#7eafff;text-decoration:none;font-size:.8rem;font-weight:650;white-space:nowrap}.panel-link:hover{color:#b3d0ff}.dashboard-table{color:#c6d1e0;--bs-table-bg:transparent;--bs-table-color:#c6d1e0;--bs-table-hover-bg:rgba(120,160,220,.055);--bs-table-hover-color:#f2f6fc}.dashboard-table thead th{background:#182438;color:#8fa1bb;text-transform:uppercase;font-size:.67rem;letter-spacing:.06em;font-weight:750;border-bottom:1px solid #2b3a50;padding:.85rem 1rem;white-space:nowrap}.dashboard-table tbody td{padding:.9rem 1rem;border-bottom:1px solid #243147;font-size:.8rem}.dashboard-table tbody tr:last-child td{border-bottom:0}.transaction-product{display:flex;align-items:center;gap:.7rem;min-width:145px;color:#e6edf7;font-weight:650}.product-mini-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#202f45;color:#8eb8ff}.transaction-badge{display:inline-flex;border-radius:6px;padding:.3rem .5rem;font-size:.68rem;font-weight:700;white-space:nowrap}.transaction-created{background:rgba(52,211,153,.12);color:#4adeaa}.transaction-changed{background:rgba(96,165,250,.13);color:#8bbcff}.transaction-deleted{background:rgba(248,113,113,.12);color:#fb8989}.transaction-date{color:#9eacc0;white-space:nowrap}.transaction-details{max-width:240px;color:#8595ab;white-space:normal}.empty-transactions{text-align:center;padding:2.5rem!important;color:#8392a8!important}.empty-transactions i{font-size:1.7rem;color:#526985}
+@@media (max-width: 767.98px){.dashboard-panel{padding:1rem}.movement-grid{grid-template-columns:1fr}.movement-item{padding:.8rem}.dashboard-title{font-size:1.5rem}.panel-heading{align-items:flex-start}.panel-period{font-size:.65rem}.dashboard-stat-card{padding:1rem}.stat-value{font-size:1.75rem}}
+</style>

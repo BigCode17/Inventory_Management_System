@@ -1,0 +1,87 @@
+@model Inventory.Web.Models.Transaction
+
+@{
+    ViewData["Title"] = "Transaction Details";
+}
+
+<!-- Page Header -->
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Transaction Details</h1>
+        <p class="page-subtitle text-muted">Viewing log record #@Model.Id details.</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn-custom btn-custom-light">
+            <i class="bi bi-arrow-left me-1"></i>Back to Log
+        </a>
+    </div>
+</div>
+
+<!-- Main Details Container -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="rounded-circle bg-dark-subtle text-dark d-flex align-items-center justify-content-center border border-dark-subtle" style="width: 64px; height: 64px;">
+                <i class="bi bi-file-earmark-text fs-3"></i>
+            </div>
+            <div>
+                <h3 class="mb-1 fw-bold">Transaction #@Model.Id</h3>
+                <div>
+                    @switch (Model.ActionType)
+                    {
+                        case Inventory.Web.Models.ActionType.Created:
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">Created</span>
+                            break;
+                        case Inventory.Web.Models.ActionType.QuantityChanged:
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1">Quantity Updated</span>
+                            break;
+                        case Inventory.Web.Models.ActionType.Deleted:
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1">Deleted</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1">Updated</span>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+
+        <hr class="text-muted my-3" />
+
+        <dl class="row mb-0 gy-3">
+            <dt class="col-sm-3 text-muted">Transaction Date</dt>
+            <dd class="col-sm-9 fw-semibold">
+                <i class="bi bi-clock text-muted me-1"></i>@Model.TransactionDate.ToString("yyyy-MM-dd | hh:mm tt")
+            </dd>
+
+            <dt class="col-sm-3 text-muted">Product Name</dt>
+            <dd class="col-sm-9 fw-bold text-primary">
+                @(Model.Product?.Name ?? "Product Deleted / Not Available")
+            </dd>
+
+            <dt class="col-sm-3 text-muted">Old Quantity</dt>
+            <dd class="col-sm-9 fw-semibold text-secondary">
+                @(Model.OldQuantity?.ToString() ?? "N/A")
+            </dd>
+
+            <dt class="col-sm-3 text-muted">New Quantity</dt>
+            <dd class="col-sm-9 fw-bold text-success">
+                @(Model.NewQuantity?.ToString() ?? "N/A")
+            </dd>
+
+            <dt class="col-sm-3 text-muted">Details / Notes</dt>
+            <dd class="col-sm-9">
+                <div class="p-3 bg-light rounded-3 border text-secondary">
+                    @(string.IsNullOrEmpty(Model.Details) ? "No additional details provided." : Model.Details)
+                </div>
+            </dd>
+        </dl>
+
+        <!-- Action Buttons -->
+        <div class="d-flex align-items-center justify-content-end gap-2 mt-4 pt-3 border-top">
+            <a asp-action="Index" class="btn-custom btn-custom-light">
+                <i class="bi bi-arrow-left me-1"></i>Back to Log
+            </a>
+        </div>
+    </div>
+</div>
